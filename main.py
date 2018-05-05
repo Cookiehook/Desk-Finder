@@ -1,8 +1,10 @@
 from desk_objects import DeskObject
 import queue as Q
+import logging
 
-list_of_desks = []
+logging.basicConfig(level=logging.INFO)
 
+# Creating some nodes. Eventually moved into a database read command
 door = DeskObject("Door")
 a = DeskObject("Desk A")
 b = DeskObject("Desk B")
@@ -15,18 +17,7 @@ h = DeskObject("Desk H")
 i = DeskObject("Desk I")
 j = DeskObject("Desk J")
 
-list_of_desks.append(door)
-list_of_desks.append(a)
-list_of_desks.append(b)
-list_of_desks.append(c)
-list_of_desks.append(d)
-list_of_desks.append(e)
-list_of_desks.append(f)
-list_of_desks.append(g)
-list_of_desks.append(h)
-list_of_desks.append(i)
-list_of_desks.append(j)
-
+# Adding node relations. Eventually moved into a database read command
 door.add_relationships((a, 4))
 a.add_relationships((door, 4), (b, 1), (g, 2))
 b.add_relationships((c, 1), (a, 1))
@@ -39,38 +30,53 @@ h.add_relationships((e, 1), (i, 2))
 i.add_relationships((h, 2), (j, 2))
 j.add_relationships((d, 1), (i, 3))
 
-# for desk in list_of_desks:
-#     for key, value in desk.relationship_map.items():
-#         print("{0} is related to {1} with cost {2}".format(desk.name, key.name, value))
-
 
 def find_shortest_path(start, end):
 
-    hack_counter = 0 # Used to make sure the priority queue never tries to sort by a DeskObject. This needs to be implemented better in the future.
+    visited_desks = []  # List of desks we've visited, used to check if we've reached the end
+    desk_path = []  # List of desks visited, and how we got there.
     priority_queue = Q.PriorityQueue()
-    priority_queue.put((0, hack_counter, start))
-    hack_counter += 1
-    completed_desks = []
 
-    while end not in completed_desks:
+    hack_counter = 0 #  Used to make sure the priority queue never tries to sort by a DeskObject. This needs to be implemented better in the future.
+    priority_queue.put((0, hack_counter, start, start))
+    hack_counter += 1
+
+    while end not in visited_desks:
         current_entry = priority_queue.get()
         current_cost = current_entry[0]
         current_desk = current_entry[2]
+        previous_desk = current_entry[3]
+
+        # Loop through all nodes linked to the current one. Add them to the priority queue
+        # if they haven't already been processed.
         for destination, cost in current_desk.relationship_map.items():
-            if destination not in completed_desks:
-                priority_queue.put((current_cost + cost, hack_counter, destination))
+            if destination not in visited_desks:
+                priority_queue.put((current_cost + cost, hack_counter, destination, current_desk))
+                logging.debug("Adding {0}, {1}, {2}, {3} to priority queue".format(
+                                current_cost + cost, hack_counter, destination.name, current_desk.name))
                 hack_counter += 1
-        completed_desks.append(current_desk)
+        visited_desks.append(current_desk)
+        desk_path.append((current_desk, previous_desk))
+
+    for item in desk_path:
+        logging.debug("{0} Processed by {1}".format(item[0].name, item[1].name))
+
+    desk_path.reverse()
+    shortest_route = []
+    shortest_route.append(end)
+
+    current_desk = end
+    while current_desk is not start:
+        for entry in desk_path:
+            if entry[0] == current_desk:
+                shortest_route.append(entry[1])
+                current_desk = entry[1]
+                break # Prevents start from being added twice
+
+    shortest_route.reverse()
+    return shortest_route
 
 
-"""
-Once we have a processed final node:
-    Get the final node, put it in a path list.
-    Search the processed nodes for any nodes related to final. Pick the lowest cost, add it to the path list.
-    Repeat with the last entry on the path list, until start is found.
-    Reverse the list, print it
-"""
-
-find_shortest_path(door, e)
-print("Complete")
+for node in find_shortest_path(f, d):
+    logging.info(node.name)
 
