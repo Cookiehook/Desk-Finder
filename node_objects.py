@@ -13,8 +13,8 @@ class NodeObject(Base):
     x_position = Column(Integer)
     z_position = Column(Integer)
 
-    parent_relationship = relationship("NodePath", foreign_keys="NodePath.parent_node")
-    child_relationship = relationship("NodePath", foreign_keys="NodePath.child_node")
+    parent_relationship = relationship("NodePath", foreign_keys="NodePath.parent_node_id")
+    child_relationship = relationship("NodePath", foreign_keys="NodePath.child_node_id")
 
     def __repr__(self):
         return "<Node(Description='%s', x_position='%s', z_position='%s')>" % (
@@ -26,8 +26,8 @@ class NodePath(Base):
     __tablename__ = 'NODE_PATH'
 
     path_id = Column(Integer, primary_key=True)
-    parent_node = Column(Integer, ForeignKey('NODE.node_id'))
-    child_node = Column(Integer, ForeignKey('NODE.node_id'))
+    parent_node_id = Column(Integer, ForeignKey('NODE.node_id'))
+    child_node_id = Column(Integer, ForeignKey('NODE.node_id'))
     cost = Column(Integer)
     accessible = Column(Boolean)
 

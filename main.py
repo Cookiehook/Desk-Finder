@@ -1,3 +1,5 @@
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
@@ -25,31 +27,18 @@ def setup_db(engine, session):
     crud_node.create_node(session, "Desk I", 0, 0)
     crud_node.create_node(session, "Desk J", 0, 0)
 
-    # Block creating duplicate relationships for each method of travel
     crud_path.create_relationship(session, "Door", "Desk A", 4, True)
-    crud_path.create_relationship(session, "Desk A", "Door", 4, True)
     crud_path.create_relationship(session, "Desk A", "Desk B", 1, True)
     crud_path.create_relationship(session, "Desk A", "Desk G", 2, True)
-    crud_path.create_relationship(session, "Desk B", "Desk A", 1, True)
     crud_path.create_relationship(session, "Desk B", "Desk C", 1, True)
-    crud_path.create_relationship(session, "Desk C", "Desk B", 1, True)
     crud_path.create_relationship(session, "Desk D", "Desk G", 5, True)
     crud_path.create_relationship(session, "Desk D", "Desk J", 1, True)
     crud_path.create_relationship(session, "Desk E", "Desk G", 2, True)
     crud_path.create_relationship(session, "Desk E", "Desk F", 1, True)
     crud_path.create_relationship(session, "Desk E", "Desk H", 1, True)
     crud_path.create_relationship(session, "Desk F", "Desk G", 15, True)
-    crud_path.create_relationship(session, "Desk F", "Desk E", 1, True)
-    crud_path.create_relationship(session, "Desk G", "Desk A", 2, True)
-    crud_path.create_relationship(session, "Desk G", "Desk D", 5, True)
-    crud_path.create_relationship(session, "Desk G", "Desk E", 2, True)
-    crud_path.create_relationship(session, "Desk G", "Desk F", 15, True)
-    crud_path.create_relationship(session, "Desk H", "Desk E", 1, True)
     crud_path.create_relationship(session, "Desk H", "Desk I", 2, True)
     crud_path.create_relationship(session, "Desk I", "Desk J", 3, True)
-    crud_path.create_relationship(session, "Desk I", "Desk H", 2, True)
-    crud_path.create_relationship(session, "Desk J", "Desk D", 1, True)
-    crud_path.create_relationship(session, "Desk J", "Desk I", 3, True)
 
     session.commit()
 
@@ -60,14 +49,14 @@ if __name__ == "__main__":
     session_maker = sessionmaker(bind=engine)
     session = session_maker()
 
-    setup_db(engine, session)
+    # setup_db(engine, session)
 
     door = crud_node.select_node_by_name(session, "Door")
-    i = crud_node.select_node_by_name(session, "Desk I")
+    desk_i = crud_node.select_node_by_name(session, "Desk I")
     nodes_lookup = session.query(NodeObject).all()
     relationship_lookup = session.query(NodePath).all()
 
-    path = find_shortest_path(door, i, nodes_lookup)
+    path = find_shortest_path(door, desk_i, nodes_lookup)
     for node in path:
         logging.info(node.description)
 

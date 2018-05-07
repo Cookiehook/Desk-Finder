@@ -1,15 +1,23 @@
 import queue as q
-import logging
 
 
 def find_shortest_path(start, end, nodes_lookup):
-    visited_nodes = []  # List of nodes we've visited, used to check if we've reached the end
-    node_path = []  # List of nodes visited, and how we got there.
+    """
+    Using Djikstra's algorithm, finds the shortest path from one node to another.
+    When searching for linked nodes, it will first look through that node's children, then any nodes that
+    are a parent of the current node.
+    :param start: Node to start from
+    :param end: Node to find a path to
+    :param nodes_lookup: List of all nodes and their IDs. Needed to relate node_it with NodeObject instances.
+    :return: List of nodes comprising the shortest path
+    """
+    visited_nodes = []
+    node_path = []
     priority_queue = q.PriorityQueue()
 
-    hack_counter = 0  # Used to make sure the priority queue never tries to sort by a NodeOject.
-    priority_queue.put((0, hack_counter, start, start))
-    hack_counter += 1
+    counter = 0  # Used to make sure the priority queue never tries to sort by a NodeOject.
+    priority_queue.put((0, counter, start, start))
+    counter += 1
 
     while end not in visited_nodes:
         current_entry = priority_queue.get()
@@ -17,23 +25,30 @@ def find_shortest_path(start, end, nodes_lookup):
         current_node = current_entry[2]
         previous_node = current_entry[3]
 
-        # Loop through all nodes linked to the current one. Add them to the priority queue
-        # if they haven't already been processed.
+        # Loop through all child relationships first
         for relationship in current_node.child_relationship:
             # Find the node object related to the PK in the node_path table.
             for node in nodes_lookup:
-                if getattr(node, "node_id") == getattr(relationship, "parent_node"):
-                    child_node = node
+                if getattr(node, "node_id") == getattr(relationship, "parent_node_id"):
+                    related_node = node
                     break
-            if child_node not in visited_nodes:
-                priority_queue.put((current_cost + getattr(relationship, "cost"),
-                                    hack_counter, child_node, current_node))
-                hack_counter += 1
+            if related_node not in visited_nodes:
+                priority_queue.put((current_cost + getattr(relationship, "cost"), counter, related_node, current_node))
+                counter += 1
+
+        # Loop through all parent relationships next.
+        for relationship in current_node.parent_relationship:
+            # Find the node object related to the PK in the node_path table.
+            for node in nodes_lookup:
+                if getattr(node, "node_id") == getattr(relationship, "child_node_id"):
+                    related_node = node
+                    break
+            if related_node not in visited_nodes:
+                priority_queue.put((current_cost + getattr(relationship, "cost"), counter, related_node, current_node))
+                counter += 1
+
         visited_nodes.append(current_node)
         node_path.append((current_node, previous_node))
-
-    for item in node_path:
-        logging.debug("{0} Processed by {1}".format(item[0].description, item[1].description))
 
     node_path.reverse()
     shortest_route = []
@@ -52,14 +67,22 @@ def find_shortest_path(start, end, nodes_lookup):
 
 
 def get_cost_of_route(route, relationship_lookup):
+    """
+    Given a list of nodes, calculates the total cost of the path
+    :param route: List of nodes to calculate the cost between
+    :param relationship_lookup: List of all relationships
+    :return: Integer value for the total cost of that journey
+    """
     current_cost = 0
 
     while len(route) > 1:
 
         current_node = route[0]
         for relation in relationship_lookup:
-            if getattr(relation, "parent_node") == current_node.node_id and \
-                    getattr(relation, "child_node") == route[1].node_id:
+            parent_node_id = getattr(relation, "parent_node_id")
+            child_node_id = getattr(relation, "child_node_id")
+            if (parent_node_id == current_node.node_id and child_node_id == route[1].node_id) or \
+                (child_node_id == current_node.node_id and parent_node_id == route[1].node_id):
                 new_cost = getattr(relation, "cost")
                 break
         current_cost += new_cost
