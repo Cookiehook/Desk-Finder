@@ -1,0 +1,30 @@
+Node Objects:
+
+Description - Name of location. E.g Reception, Eric's desk, central lift floor 3.
+X Position - Actual 3D location of the node
+Y Position - Actual 3D location of the node
+Z Position - Actual 3D location of the node
+
+Positions are used for weighting of the queue for A* search. May be difficult to implement accurately in real world.
+
+
+Node Paths:
+
+Parent Node - FK to node object
+Child Node - FK to node object
+Cost - How long it takes to traverse this relationship
+Type - Stairs, indoor path, lift, external path. Allows for accessibility judgement calls.
+Access Image - If Accessible is False, path to an image file showing why it's not accessible.
+Active - Boolean. Whether the path is currently useable.
+
+Access image allows users with limited motility make a judgement call on whether they can take that path. A crutch
+user could takes a few small steps, but not 4 flights of stairs, whereas a wheelchair user could take none.
+Active - Used to temporarily disable a relationship without losing it, in case of repair work.
+
+
+Contact:
+Name - Name of employee
+Node (optional) - Where to find them
+
+Plenty of room for improvement here on AD and Outlook calendar integration. May be implemented in future development,
+but original focus is on building the route finder between two places.

@@ -43,6 +43,12 @@ def setup_db(engine, session):
     session.commit()
 
 
+def get_all_nodes():
+    nodes = session.query(NodeObject).all()
+    for node in nodes:
+        print(node)
+
+
 if __name__ == "__main__":
 
     engine = create_engine('sqlite:///data_files\\test_data.db', echo=False)
@@ -50,6 +56,8 @@ if __name__ == "__main__":
     session = session_maker()
 
     # setup_db(engine, session)
+
+    get_all_nodes()
 
     door = crud_node.select_node_by_name(session, "Door")
     desk_i = crud_node.select_node_by_name(session, "Desk I")

@@ -1,0 +1,46 @@
+As an able bodied visitor
+I want to find the fastest route to a room
+So I can visit whoever works there
+
+As an able bodied visitor
+I want to find the fastest route to a person's placement
+So I can visit them
+
+As a visitor with some motility limitations
+I want to find a route to a person / room with least impediments
+So I can reach a person / room without much grief
+## This option would present "inaccessible" routes, letting the user make a judgement call##
+
+
+As a visitor with severly restricted motility
+I want to find the route to a person / room with no impediments
+So I can reach my destination.
+## This option would not present stairs or rough paths unless it couln't find anything else ##
+
+
+
+As an employee
+I want to be able to edit my contact information
+So I can tell the system which node I'm placed at.
+
+
+
+As an administrator
+I want to add / remove nodes to the system
+So I can maintain the system as the building changes
+
+As an administrator
+I want to add / remove paths to the system
+So I can maintain the system as the building changes
+
+As an administrator
+I want to enable / disable paths
+So the system doesn't send users down temporarily blocked paths
+
+As an administrator
+I want to edit paths
+So I can improve the system as the building changes.
+
+As an administrator
+I want to edit nodes
+So I can improve the system as the building changes.
